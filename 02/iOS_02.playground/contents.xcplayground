@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<playground version='6.0' target-platform='ios'>
+    <pages>
+        <page name='exercise_1'/>
+        <page name='exercise_2'/>
+        <page name='exercise_3'/>
+        <page name='exercise_4'/>
+        <page name='exercise_5'/>
+        <page name='exercise_6'/>
+        <page name='exercise_7'/>
+        <page name='exercise_8'/>
+        <page name='exercise_9'/>
+        <page name='exercise_10'/>
+        <page name='exercise_11'/>
+        <page name='exercise_12'/>
+        <page name='exercise_13'/>
+        <page name='exercise_14'/>
+        <page name='exercise_15'/>
+        <page name='exercise_16'/>
+        <page name='exercise_17'/>
+        <page name='exercise_18'/>
+        <page name='exercise_19'/>
+        <page name='exercise_20'/>
+    </pages>
+</playground>
