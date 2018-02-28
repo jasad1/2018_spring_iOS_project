@@ -45,8 +45,8 @@ class GameOfLife {
         // Parse rule
         let lowerRule = rule.lowercased()
         
-        if let bIdx = lowerRule.characters.index(of: "b") {
-            for i in 1..<lowerRule.characters.count {
+        if let bIdx = lowerRule.index(of: "b") {
+            for i in 1..<lowerRule.count {
                 if let numIdx = lowerRule.index(bIdx, offsetBy: i, limitedBy: lowerRule.lastIndex) {
                     if lowerRule[numIdx] == "s" {
                         break
@@ -67,8 +67,8 @@ class GameOfLife {
             return nil
         }
         
-        if let sIdx = lowerRule.characters.index(of: "s") {
-            for i in 1..<lowerRule.characters.count {
+        if let sIdx = lowerRule.index(of: "s") {
+            for i in 1..<lowerRule.count {
                 if let numIdx = lowerRule.index(sIdx, offsetBy: i, limitedBy: lowerRule.lastIndex) {
                     if lowerRule[numIdx] == "b" {
                         break

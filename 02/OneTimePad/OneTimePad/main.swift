@@ -44,10 +44,10 @@ class OneTimePad: Encryption {
     init?(shiftText: String) {
         self.shiftText = shiftText
         
-        for char in shiftText.lowercased().characters {
+        for char in shiftText.lowercased() {
             let chars = OneTimePad.CHARACTERS_L
             
-            let idx = chars.characters.index(of: char)
+            let idx = chars.index(of: char)
             if idx == nil {
                 print("ERROR: Character not supported in shiftText!")
                 return nil
@@ -60,21 +60,21 @@ class OneTimePad: Encryption {
     func encrypt(plaintext: String) -> String? {
         var ret = ""
         
-        for (index, char) in plaintext.characters.enumerated() {
+        for (index, char) in plaintext.enumerated() {
             let chars = char.isLowercase ? OneTimePad.CHARACTERS_L : OneTimePad.CHARACTERS_U
             
-            let idx = chars.characters.index(of: char)
+            let idx = chars.index(of: char)
             if idx == nil {
                 print("ERROR: Character not supported!")
                 return nil
             }
             
-            let shift = shiftArray[index % shiftText.characters.count]
+            let shift = shiftArray[index % shiftText.count]
             
             if let newIdx = chars.index(idx!, offsetBy: shift, limitedBy: chars.lastIndex) {
                 ret.append(chars[newIdx])
             } else {
-                if let newIdxWrap = chars.index(idx!, offsetBy: shift - chars.characters.count, limitedBy: chars.startIndex) {
+                if let newIdxWrap = chars.index(idx!, offsetBy: shift - chars.count, limitedBy: chars.startIndex) {
                     ret.append(chars[newIdxWrap])
                 } else {
                     print("ERROR: Should not happen!")
@@ -88,21 +88,21 @@ class OneTimePad: Encryption {
     func decrypt(cyphertext: String) -> String? {
         var ret = ""
         
-        for (index, char) in cyphertext.characters.enumerated() {
+        for (index, char) in cyphertext.enumerated() {
             let chars = char.isLowercase ? OneTimePad.CHARACTERS_L : OneTimePad.CHARACTERS_U
             
-            let idx = chars.characters.index(of: char)
+            let idx = chars.index(of: char)
             if idx == nil {
                 print("ERROR: Character not supported!")
                 return nil
             }
             
-            let shift = shiftArray[index % shiftText.characters.count]
+            let shift = shiftArray[index % shiftText.count]
             
             if let newIdx = chars.index(idx!, offsetBy: -shift, limitedBy: chars.startIndex) {
                 ret.append(chars[newIdx])
             } else {
-                if let newIdxWrap = chars.index(idx!, offsetBy: -shift + chars.characters.count, limitedBy: chars.lastIndex) {
+                if let newIdxWrap = chars.index(idx!, offsetBy: -shift + chars.count, limitedBy: chars.lastIndex) {
                     ret.append(chars[newIdxWrap])
                 } else {
                     print("ERROR: Should not happen!")

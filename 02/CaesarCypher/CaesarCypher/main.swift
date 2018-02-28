@@ -45,10 +45,10 @@ class CaesarsCypher: Encryption {
     func encrypt(plaintext: String) -> String? {
         var ret = ""
         
-        for char in plaintext.characters {
+        for char in plaintext {
             let chars = char.isLowercase ? CaesarsCypher.CHARACTERS_L : CaesarsCypher.CHARACTERS_U
             
-            let idx = chars.characters.index(of: char)
+            let idx = chars.index(of: char)
             if idx == nil {
                 print("ERROR: Character not supported!")
                 return nil
@@ -57,7 +57,7 @@ class CaesarsCypher: Encryption {
             if let newIdx = chars.index(idx!, offsetBy: shift, limitedBy: chars.lastIndex) {
                 ret.append(chars[newIdx])
             } else {
-                if let newIdxWrap = chars.index(idx!, offsetBy: shift - chars.characters.count, limitedBy: chars.startIndex) {
+                if let newIdxWrap = chars.index(idx!, offsetBy: shift - chars.count, limitedBy: chars.startIndex) {
                     ret.append(chars[newIdxWrap])
                 } else {
                     print("ERROR: Should not happen!")
@@ -71,10 +71,10 @@ class CaesarsCypher: Encryption {
     func decrypt(cyphertext: String) -> String? {
         var ret = ""
         
-        for char in cyphertext.characters {
+        for char in cyphertext {
             let chars = char.isLowercase ? CaesarsCypher.CHARACTERS_L : CaesarsCypher.CHARACTERS_U
             
-            let idx = chars.characters.index(of: char)
+            let idx = chars.index(of: char)
             if idx == nil {
                 print("ERROR: Character not supported!")
                 return nil
@@ -83,7 +83,7 @@ class CaesarsCypher: Encryption {
             if let newIdx = chars.index(idx!, offsetBy: -shift, limitedBy: chars.startIndex) {
                 ret.append(chars[newIdx])
             } else {
-                if let newIdxWrap = chars.index(idx!, offsetBy: -shift + chars.characters.count, limitedBy: chars.lastIndex) {
+                if let newIdxWrap = chars.index(idx!, offsetBy: -shift + chars.count, limitedBy: chars.lastIndex) {
                     ret.append(chars[newIdxWrap])
                 } else {
                     print("ERROR: Should not happen!")
