@@ -10,14 +10,4 @@ target 'Cloneagram' do
   pod 'Firebase/Auth'
   pod 'Firebase/Database'
 
-  target 'CloneagramTests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
-
-  target 'CloneagramUITests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
-
 end

@@ -2,13 +2,13 @@
 //  AppDelegate.swift
 //  Cloneagram
 //
-//  Created by Student on 2018. 02. 24..
+//  Created by Student on 2018. 03. 01..
 //  Copyright © 2018. Student. All rights reserved.
 //
 
 import UIKit
+
 import Firebase
-import FirebaseDatabase
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
