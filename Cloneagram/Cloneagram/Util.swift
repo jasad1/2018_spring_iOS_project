@@ -9,6 +9,7 @@
 import UIKit
 
 import FirebaseAuth
+import FirebaseStorage
 
 extension UIViewController {
     func createAndShowErrorAlert(forMessage message: String) -> Void {
@@ -36,20 +37,45 @@ extension AuthErrorCode {
         case .weakPassword:
             return "The password is too weak."
         default:
-            return "Unknown error."
+            return String(format: "Unknown error (code: %d).", self.rawValue)
+        }
+    }
+}
+
+extension StorageErrorCode {
+    var errorMessage: String {
+        switch self {
+        case .unauthenticated:
+            return "You are not logged in."
+        case .unauthorized:
+            return "You do not have permission to do this."
+        case .retryLimitExceeded:
+            return "Retry limit exceeded. Try again later."
+        default:
+            return String(format: "Unknown error (code: %d).", self.rawValue)
         }
     }
 }
 
 // E-mail validation is hard and this is not a proper solution, but good enough for user feedback.
 // Taken from: https://stackoverflow.com/questions/25471114/how-to-validate-an-e-mail-address-in-swift
-private func isValidEmail(email: String) -> Bool {
+fileprivate func isValidEmail(_ email: String) -> Bool {
     let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
     
     let emailTest = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
     return emailTest.evaluate(with: email)
 }
 
-func validateInputs(email: String, password: String) -> Bool {
-    return isValidEmail(email: email) && password.count >= 6 && password.count <= 16
+func validateInputs(email: String, password: String, viewController: UIViewController) -> Bool {
+    guard isValidEmail(email) else {
+        viewController.createAndShowErrorAlert(forMessage: "Invalid e-mail address!")
+        return false
+    }
+    
+    guard password.count >= 6 && password.count <= 16 else {
+        viewController.createAndShowErrorAlert(forMessage: "Password length must be between 6 and 16!")
+        return false
+    }
+    
+    return true
 }

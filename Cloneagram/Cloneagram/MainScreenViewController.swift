@@ -18,6 +18,8 @@ class MainScreenViewController: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+
+        // When this view loads, currentUser is already available, it is safe to unwrap
         let user = Auth.auth().currentUser!
         helloLabel.text = "Hello" + (user.displayName != nil ? ", " + user.displayName! : "") + "!"
     }
@@ -33,6 +35,7 @@ class MainScreenViewController: UIViewController {
         } catch let signOutError as NSError {
             print("Error signing out: %@", signOutError)
         }
+
         performSegue(withIdentifier: "MainScreenToLogin", sender: self)
     }
     

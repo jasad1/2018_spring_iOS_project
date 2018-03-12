@@ -38,8 +38,12 @@ class RegisterViewController: UIViewController {
                 return
         }
         
-        guard validateInputs(email: email, password: password) else {
-            createAndShowErrorAlert(forMessage: "Invalid input.")
+        guard validateInputs(email: email, password: password, viewController: self) else {
+            return
+        }
+        
+        if name.count > 64 {
+            createAndShowErrorAlert(forMessage: "The given name is too long!")
             return
         }
         

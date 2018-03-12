@@ -12,7 +12,7 @@ import FirebaseAuth
 import Firebase
 
 class LoginViewController: UIViewController {
-
+    
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
     
@@ -27,7 +27,6 @@ class LoginViewController: UIViewController {
         
         Auth.auth().addStateDidChangeListener { (auth, user) in
             if user != nil {
-                print("Already logged in!")
                 self.performSegue(withIdentifier: "LoginToMainScreen", sender: self)
             }
         }
@@ -44,8 +43,7 @@ class LoginViewController: UIViewController {
             return
         }
         
-        guard validateInputs(email: email, password: password) else {
-            createAndShowErrorAlert(forMessage: "Invalid input.")
+        guard validateInputs(email: email, password: password, viewController: self) else {
             return
         }
         
