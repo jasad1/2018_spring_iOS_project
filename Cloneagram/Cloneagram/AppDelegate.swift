@@ -9,16 +9,49 @@
 import UIKit
 
 import Firebase
+import FirebaseAuth
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    var mainStoryBoard: UIStoryboard!
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         FirebaseApp.configure()
+        
+        mainStoryBoard = UIStoryboard(name: "Main", bundle: Bundle.main)
+        
+        if Auth.auth().currentUser != nil {
+            showMainScreen()
+        } else {
+            showLoginScreen()
+        }
+        
         return true
+    }
+    
+    func showMainScreen() {
+        let rootController = mainStoryBoard.instantiateViewController(withIdentifier: "MainScreenViewController")
+        changeRootAnimated(UINavigationController(rootViewController: rootController))
+    }
+    
+    func showLoginScreen() {
+        changeRootAnimated(mainStoryBoard.instantiateInitialViewController()!)
+    }
+    
+    func changeRootAnimated(_ rootViewController: UIViewController) {
+        let snapShot = (window?.snapshotView(afterScreenUpdates: true))!
+        rootViewController.view.addSubview(snapShot)
+        window?.rootViewController = rootViewController
+        
+        UIView.animate(withDuration: 0.5, animations: {
+            snapShot.layer.opacity = 0.0
+            snapShot.layer.transform = CATransform3DMakeScale(1.5, 1.5, 1.5)
+        }, completion: { (finished) in
+            snapShot.removeFromSuperview()
+        })
     }
 
     func applicationWillResignActive(_ application: UIApplication) {

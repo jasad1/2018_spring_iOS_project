@@ -77,11 +77,7 @@ class ChoosePhotoViewController: UIViewController, UIPickerViewDelegate, UIPicke
         // Dispose of any resources that can be recreated.
     }
     
-    @IBAction func cancelButtonClicked(_ sender: UIButton) {
-        performSegue(withIdentifier: "ChoosePhotoToMainScreen", sender: self)
-    }
-    
-    @IBAction func saveButtonClicked(_ sender: UIButton) {
+    @IBAction func saveButtonClicked(_ sender: Any) {
         let uuid = UUID().uuidString
         let path = "images/" + uuid + ".jpg"
         
@@ -108,41 +104,34 @@ class ChoosePhotoViewController: UIViewController, UIPickerViewDelegate, UIPicke
                 return
             }
             
-            guard let downloadURL = metadata!.downloadURL()?.absoluteString else {
-                // If we cannot get download URL, delete the image.
-                // completion is nil, because we do not care of the result.
-                // It could happen that the image is uploaded, but we lose network connection
-                // and that is unfortunate, but there is nothing we can do.
-                imageRef.delete(completion: nil)
-
-                self.createAndShowErrorAlert(forMessage: "Could not get download URL.")
-                return
-            }
-           
             let imageDBRef = self.databaseRef.child("images").childByAutoId()
             imageDBRef.updateChildValues([
                 "title": self.titleTextView.text ?? "",
-                "url": downloadURL
+                "uuid": uuid
             ]) { (error, ref) in
-                if let _ = error {
+                if error != nil {
+                    // completion is nil, because we do not care of the result.
+                    // It could happen that the image is uploaded, but we lose network connection
+                    // and that is unfortunate, but there is nothing we can do.
                     imageRef.delete(completion: nil)
-                    
                     self.createAndShowErrorAlert(forMessage: "Could not save image data.")
+                    return
+                }
+                
+                self.databaseRef.child("users/\(self.user.uid)/images")
+                    .childByAutoId().setValue(imageDBRef.key) { (error, ref) in
+                        if error != nil {
+                            imageDBRef.removeValue()
+                            imageRef.delete(completion: nil)
+                            
+                            self.createAndShowErrorAlert(forMessage: "Could not save user data.")
+                            return
+                        }
+                        
+                        navigationController?.popViewController(animated: true)
                 }
             }
-            
-           self.databaseRef.child("users/\(self.user.uid)/images")
-               .childByAutoId().setValue(imageDBRef.key) { (error, ref) in
-               if let _ = error {
-                   imageDBRef.removeValue()
-                   imageRef.delete(completion: nil)
-                    
-                   self.createAndShowErrorAlert(forMessage: "Could not save user data.")
-               }
-           }
         }
-        
-        performSegue(withIdentifier: "ChoosePhotoToMainScreen", sender: self)
     }
     
     // MARK: - UIPickerViewDelegate
@@ -167,6 +156,10 @@ class ChoosePhotoViewController: UIViewController, UIPickerViewDelegate, UIPicke
             
             imageView.image = image
         }
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
+        return 32.0
     }
     
     // MARK: - UIPickerViewDataSource
@@ -204,7 +197,7 @@ class ChoosePhotoViewController: UIViewController, UIPickerViewDelegate, UIPicke
         // Dismiss image picker
         dismiss(animated: true, completion: nil)
         // Dismiss ChoosePhotoViewController
-        performSegue(withIdentifier: "ChoosePhotoToMainScreen", sender: self)
+        navigationController?.popViewController(animated: true)
     }
     
     /*

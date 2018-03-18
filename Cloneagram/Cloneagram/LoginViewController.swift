@@ -20,17 +20,18 @@ class LoginViewController: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
         
-        Auth.auth().addStateDidChangeListener { (auth, user) in
-            if user != nil {
-                self.performSegue(withIdentifier: "LoginToMainScreen", sender: self)
-            }
-        }
+        // Set up back button title for register screen
+        self.navigationItem.backBarButtonItem = UIBarButtonItem(
+            title: "Back", style: .plain, target: nil, action: nil)
+        
     }
+    
+    /*override func viewWillDisappear(_ animated: Bool) {
+        // Fix iOS 11.2 bug of UIBarButtonItem staying highlighted after navigation
+        navigationController?.navigationBar.tintAdjustmentMode = .normal
+        navigationController?.navigationBar.tintAdjustmentMode = .automatic
+    }*/
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -55,7 +56,8 @@ class LoginViewController: UIViewController {
                 return
             }
 
-            self.performSegue(withIdentifier: "LoginToMainScreen", sender: self)
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.showMainScreen()
         }
     }
     

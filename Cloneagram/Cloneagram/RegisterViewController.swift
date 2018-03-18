@@ -9,6 +9,7 @@
 import UIKit
 
 import FirebaseAuth
+import FirebaseDatabase
 
 class RegisterViewController: UIViewController {
 
@@ -16,10 +17,13 @@ class RegisterViewController: UIViewController {
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
     
+    private var databaseRef: DatabaseReference!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        databaseRef = Database.database().reference()
     }
 
     override func didReceiveMemoryWarning() {
@@ -63,8 +67,24 @@ class RegisterViewController: UIViewController {
                     
                     self.createAndShowErrorAlert(forMessage: errorMessage)
                     return
+                }
 
-                        self.performSegue(withIdentifier: "RegisterToMainScreen", sender: self)
+                self.databaseRef.child("users/\(user!.uid)/displayName").setValue(name) { (error, ref) in
+                    if error != nil {
+                        self.createAndShowErrorAlert(forMessage: "Could not save user data.")
+                        return
+                    }
+                    
+                    self.databaseRef.child("users/\(user!.uid)/followedUsers")
+                        .childByAutoId().setValue(user!.uid) { (error, ref) in
+                            if error != nil {
+                                self.createAndShowErrorAlert(forMessage: "Could not save user data.")
+                                return
+                            }
+                            
+                            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                            appDelegate.showMainScreen()
+                    }
                 }
             }
         }

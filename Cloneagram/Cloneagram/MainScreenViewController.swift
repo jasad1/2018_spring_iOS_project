@@ -18,10 +18,12 @@ class MainScreenViewController: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-
-        // When this view loads, currentUser is already available, it is safe to unwrap
         let user = Auth.auth().currentUser!
         helloLabel.text = "Hello" + (user.displayName != nil ? ", " + user.displayName! : "") + "!"
+
+        // Set up back button title for register screen
+        self.navigationItem.backBarButtonItem = UIBarButtonItem(
+            title: "Cancel", style: .plain, target: nil, action: nil)
     }
 
     override func didReceiveMemoryWarning() {
@@ -29,14 +31,15 @@ class MainScreenViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    @IBAction func logoutButtonClicked(_ sender: UIButton) {
+    @IBAction func logoutButtonClicked(_ sender: UIBarButtonItem) {
         do {
             try Auth.auth().signOut()
         } catch let signOutError as NSError {
             print("Error signing out: %@", signOutError)
         }
-
-        performSegue(withIdentifier: "MainScreenToLogin", sender: self)
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.showLoginScreen()
     }
     
     /*
