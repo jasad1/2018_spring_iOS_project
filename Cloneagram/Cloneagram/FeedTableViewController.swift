@@ -15,12 +15,12 @@ import FirebaseStorage
 class FeedTableViewController: UITableViewController {
 
     private var user: User!
-    private var ownUserModel: UserModel!
     
     private var databaseRef: DatabaseReference!
     private var storageRef: StorageReference!
     
     struct Item {
+        var isMine: Bool
         var name: String
         var profilePicture: UIImage?
         var title: String
@@ -31,23 +31,21 @@ class FeedTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Set bounce color
+        // Set bounce color, does not work though
         /*let view = UIView(frame: CGRect(x: 0, y: -480, width: 320, height: 480))
         view.backgroundColor = tableView.backgroundColor
         tableView.addSubview(view)*/
         
         // Initialize Firebase
-        user = Auth.auth().currentUser!
-       
         databaseRef = Database.database().reference()
         storageRef = Storage.storage().reference()
         
-        loadUser(uid: user.uid) { (userModel) in
-            if userModel == nil {
+        FirebaseManager.shared.loadOwnUser { (user) in
+            if user == nil {
                 self.createAndShowErrorAlert(forMessage: "Could not load own user. Try again later!")
                 return
             }
-            self.ownUserModel = userModel
+            self.user = user
             self.startObservingDatabase()
         }
     }
@@ -58,115 +56,128 @@ class FeedTableViewController: UITableViewController {
     }
     
     // MARK: - Firebase
-    
-    struct UserModel {
-        var displayName: String = ""
-        var description: String? = nil
-        var photoUUID: String? = nil
-        var images: [String] = []
-        var followedUsers: [String] = []
-    }
-    
-    private func loadUser(uid: String, onLoad: @escaping (UserModel?) -> Void) {
+
+    private func loadUser(uid: String, onLoad: @escaping (User?) -> Void) {
         databaseRef.child("users/\(uid)").observeSingleEvent(of: .value) { (snapshot) in
-            var userModel = UserModel()
+            var user = User()
+            user.uid = uid
             
             for child in snapshot.children {
                 let childSnapshot = child as! DataSnapshot
                 switch childSnapshot.key {
                 case "displayName":
-                    userModel.displayName = childSnapshot.value as! String
+                    user.displayName = childSnapshot.value as! String
                     
                 case "description":
-                    userModel.description = (childSnapshot.value as! String)
+                    user.description = (childSnapshot.value as! String)
                     
-                case "photoUUID":
-                    userModel.photoUUID = (childSnapshot.value as! String)
+                case "profilePictureUUID":
+                    user.profilePictureUUID = (childSnapshot.value as! String)
                     
                 case "images":
                     let dict = childSnapshot.value as! [String: String]
-                    userModel.images.append(contentsOf: dict.values)
+                    user.images.append(contentsOf: dict.values)
                     
                 case "followedUsers":
                     let dict = childSnapshot.value as! [String: String]
-                    userModel.followedUsers.append(contentsOf: dict.values)
+                    user.followedUsers.append(contentsOf: dict.values)
                     
                 default:
                     break
                 }
             }
             
-            onLoad(userModel)
+            onLoad(user)
+        }
+    }
+    
+    private func loadImagesOfUser(_ user: User, _ profilePictureImage: UIImage?) {
+        for imageId in user.images {
+            self.databaseRef.child("images/\(imageId)").observeSingleEvent(of: .value) { (snapshot) in
+                let dict = snapshot.value as! [String: String]
+                
+                let path = "images/" + dict["uuid"]! + ".jpg"
+                
+                let imageRef = self.storageRef.child(path)
+                imageRef.getData(maxSize: 1 * 1024 * 1024) { (data, error) in
+                    if let _ = error {
+                        /*let errorMessage = StorageErrorCode(rawValue: error._code)?.errorMessage ?? String(format: "Unknown error (code: %d).", error._code)
+                         
+                        self.createAndShowErrorAlert(forMessage: errorMessage)*/
+                        return
+                    }
+                    
+                    let image = UIImage(data: data!)
+                    guard image != nil else {
+                        return
+                    }
+                    
+                    self.items.append(Item(isMine: self.user.isOwn, name: user.displayName, profilePicture: profilePictureImage, title: dict["title"]!, image: image!))
+                    self.tableView.reloadData()
+                    //self.tableView.insertRows(at: [IndexPath(item: self.items.count - 1, section: 0)], with: .bottom)
+                }
+            }
         }
     }
     
     private func startObservingDatabase() {
-        let loadImagesOfUser: (UserModel, UIImage?) -> Void = { (userModel, profilePictureImage) in
-            for imageId in userModel.images {
-                self.databaseRef.child("images/\(imageId)").observeSingleEvent(of: .value) { (snapshot) in
-                    let dict = snapshot.value as! [String: String]
-                    
-                    let path = "images/" + dict["uuid"]! + ".jpg"
-                    
-                    let imageRef = self.storageRef.child(path)
-                    imageRef.getData(maxSize: 1 * 1024 * 1024) { (data, error) in
-                        if let _ = error {
-                            /*let errorMessage = StorageErrorCode(rawValue: error._code)?.errorMessage ?? String(format: "Unknown error (code: %d).", error._code)
-                             
-                             self.createAndShowErrorAlert(forMessage: errorMessage)*/
-                            return
-                        }
-                        
-                        let image = UIImage(data: data!)
-                        guard image != nil else {
-                            return
-                        }
-                        
-                        self.items.append(Item(name: userModel.displayName, profilePicture: profilePictureImage, title: dict["title"]!, image: image!))
-                        self.tableView.insertRows(at: [IndexPath(item: self.items.count - 1, section: 0)], with: .bottom)
-                    }
-                }
-            }
-        }
-        
-        for followedUserId in ownUserModel.followedUsers {
-            loadUser(uid: followedUserId) { (userModel) in
-                guard let userModel = userModel else {
+        for followedUserId in user.followedUsers {
+            loadUser(uid: followedUserId) { (user) in
+                guard let user = user else {
                     return
                 }
                 
-                if let photoUUID = userModel.photoUUID {
-                    let path = "images/" + photoUUID + ".jpg"
-                    
-                    let imageRef = self.storageRef.child(path)
-                    imageRef.getData(maxSize: 1 * 1024 * 1024) { (data, error) in
-                        if let _ = error {
-                            /*let errorMessage = StorageErrorCode(rawValue: error._code)?.errorMessage ?? String(format: "Unknown error (code: %d).", error._code)
-                             
-                             self.createAndShowErrorAlert(forMessage: errorMessage)*/
-                            
-                            loadImagesOfUser(userModel, nil)
-                            return
-                        }
+                guard let photoUUID = user.profilePictureUUID else {
+                    // No profile picture, just load the images
+                    self.loadImagesOfUser(user, nil)
+                    return
+                }
+                
+                let path = "images/" + photoUUID + ".jpg"
+                
+                let imageRef = self.storageRef.child(path)
+                imageRef.getData(maxSize: 1 * 1024 * 1024) { (data, error) in
+                    if error != nil {
+                        /*let errorMessage = StorageErrorCode(rawValue: error._code)?.errorMessage ?? String(format: "Unknown error (code: %d).", error._code)
+                         
+                         self.createAndShowErrorAlert(forMessage: errorMessage)*/
                         
-                        let image = UIImage(data: data!)
-                        loadImagesOfUser(userModel, image)
+                        self.loadImagesOfUser(user, nil)
+                        return
                     }
-                } else {
-                    loadImagesOfUser(userModel, nil)
+                    
+                    let image = UIImage(data: data!)
+                    self.loadImagesOfUser(user, image)
                 }
             }
         }
     }
     
     deinit {
-        databaseRef.removeAllObservers()
+        print("deinit called")
+        
+        // Not needed, because observeSingleEvent is used everywhere
+        //databaseRef.removeAllObservers()
     }
     
     // MARK: - Table view delegate
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print(indexPath.row)
+        // TODO: open ViewPhoto
+    }
+    
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        let item = items[indexPath.row]
+        return item.isMine
+    }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            items.remove(at: indexPath.row)
+            // TODO: remove from Firebase
+            tableView.reloadData()
+        }
     }
     
     // MARK: - Table view data source

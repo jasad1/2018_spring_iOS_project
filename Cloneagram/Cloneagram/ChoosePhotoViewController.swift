@@ -8,10 +8,6 @@
 
 import UIKit
 
-import FirebaseAuth
-import FirebaseDatabase
-import FirebaseStorage
-
 class ChoosePhotoViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
 
     private struct Constants {
@@ -47,20 +43,10 @@ class ChoosePhotoViewController: UIViewController, UIPickerViewDelegate, UIPicke
     private var chosenImage: UIImage?
     private let imagePicker = UIImagePickerController()
     
-    private var user: User!
-    private var databaseRef: DatabaseReference!
-    private var storageRef: StorageReference!
-    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        
-        // Initialize Firebase
-        user = Auth.auth().currentUser!
-        databaseRef = Database.database().reference()
-        storageRef = Storage.storage().reference()
-        
         filterPickerView.delegate = self
         filterPickerView.dataSource = self
  
@@ -78,11 +64,6 @@ class ChoosePhotoViewController: UIViewController, UIPickerViewDelegate, UIPicke
     }
     
     @IBAction func saveButtonClicked(_ sender: Any) {
-        let uuid = UUID().uuidString
-        let path = "images/" + uuid + ".jpg"
-        
-        let imageRef = storageRef.child(path)
-        
         guard let data = UIImageJPEGRepresentation(imageView.image!, 1.0) else {
             createAndShowErrorAlert(forMessage: "Could not convert image to JPEG!")
             return
@@ -93,44 +74,13 @@ class ChoosePhotoViewController: UIViewController, UIPickerViewDelegate, UIPicke
             return
         }
         
-        let metadata = StorageMetadata()
-        metadata.contentType = "image/jpeg"
-        
-        imageRef.putData(data, metadata: metadata) { (metadata, error) in
-            if let error = error {
-                let errorMessage = StorageErrorCode(rawValue: error._code)?.errorMessage ?? String(format: "Unknown error (code: %d).", error._code)
-                
+        FirebaseManager.shared.uploadImage(data: data, title: titleTextView.text) { (errorMessage) in
+            if let errorMessage = errorMessage {
                 self.createAndShowErrorAlert(forMessage: errorMessage)
                 return
             }
             
-            let imageDBRef = self.databaseRef.child("images").childByAutoId()
-            imageDBRef.updateChildValues([
-                "title": self.titleTextView.text ?? "",
-                "uuid": uuid
-            ]) { (error, ref) in
-                if error != nil {
-                    // completion is nil, because we do not care of the result.
-                    // It could happen that the image is uploaded, but we lose network connection
-                    // and that is unfortunate, but there is nothing we can do.
-                    imageRef.delete(completion: nil)
-                    self.createAndShowErrorAlert(forMessage: "Could not save image data.")
-                    return
-                }
-                
-                self.databaseRef.child("users/\(self.user.uid)/images")
-                    .childByAutoId().setValue(imageDBRef.key) { (error, ref) in
-                        if error != nil {
-                            imageDBRef.removeValue()
-                            imageRef.delete(completion: nil)
-                            
-                            self.createAndShowErrorAlert(forMessage: "Could not save user data.")
-                            return
-                        }
-                        
-                        navigationController?.popViewController(animated: true)
-                }
-            }
+            self.navigationController!.popViewController(animated: true)
         }
     }
     
@@ -175,7 +125,6 @@ class ChoosePhotoViewController: UIViewController, UIPickerViewDelegate, UIPicke
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
         if let pickedImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
-            
             // Resize image
             let newWidth = imageView.bounds.size.width
             let scale = newWidth / pickedImage.size.width

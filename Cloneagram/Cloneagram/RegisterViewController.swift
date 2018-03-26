@@ -8,22 +8,16 @@
 
 import UIKit
 
-import FirebaseAuth
-import FirebaseDatabase
-
 class RegisterViewController: UIViewController {
 
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
     
-    private var databaseRef: DatabaseReference!
-    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        databaseRef = Database.database().reference()
     }
 
     override func didReceiveMemoryWarning() {
@@ -51,42 +45,14 @@ class RegisterViewController: UIViewController {
             return
         }
         
-        Auth.auth().createUser(withEmail: email, password: password) { (user, error) in
-            if let error = error {
-                let errorMessage = AuthErrorCode(rawValue: error._code)?.errorMessage ?? String(format: "Unknown error (code: %d).", error._code)
-                
+        FirebaseManager.shared.register(name: name, email: email, password: password) { (errorMessage) in
+            if let errorMessage = errorMessage {
                 self.createAndShowErrorAlert(forMessage: errorMessage)
                 return
             }
             
-            let request = user!.createProfileChangeRequest()
-            request.displayName = name
-            request.commitChanges { (error) in
-                if let error = error {
-                    let errorMessage = AuthErrorCode(rawValue: error._code)?.errorMessage ?? String(format: "Unknown error (code: %d).", error._code)
-                    
-                    self.createAndShowErrorAlert(forMessage: errorMessage)
-                    return
-                }
-
-                self.databaseRef.child("users/\(user!.uid)/displayName").setValue(name) { (error, ref) in
-                    if error != nil {
-                        self.createAndShowErrorAlert(forMessage: "Could not save user data.")
-                        return
-                    }
-                    
-                    self.databaseRef.child("users/\(user!.uid)/followedUsers")
-                        .childByAutoId().setValue(user!.uid) { (error, ref) in
-                            if error != nil {
-                                self.createAndShowErrorAlert(forMessage: "Could not save user data.")
-                                return
-                            }
-                            
-                            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                            appDelegate.showMainScreen()
-                    }
-                }
-            }
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.showMainScreen()
         }
     }
     

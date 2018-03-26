@@ -8,7 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		268918D82D704DB1B6E0A4D0 /* Pods_Cloneagram.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4BB0825A815B2EBC4A207C9 /* Pods_Cloneagram.framework */; };
+		3F0BE32A2068F3D900C2DA04 /* FirebaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F0BE3292068F3D800C2DA04 /* FirebaseManager.swift */; };
 		3F40B457204835D2004A61BB /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3F40B456204835D2004A61BB /* GoogleService-Info.plist */; };
+		3F53A4F220668475005639E9 /* ViewPhotoTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F53A4F120668475005639E9 /* ViewPhotoTableViewController.swift */; };
+		3F53A4F420668A5E005639E9 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F53A4F320668A5E005639E9 /* Models.swift */; };
 		3F58C55E2052CBE800F5F26B /* FeedTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F58C55D2052CBE800F5F26B /* FeedTableViewController.swift */; };
 		3F58C5602052E2D400F5F26B /* FeedTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F58C55F2052E2D300F5F26B /* FeedTableViewCell.swift */; };
 		3F680BA0205147BD002A8D76 /* ChoosePhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F680B9F205147BD002A8D76 /* ChoosePhotoViewController.swift */; };
@@ -23,7 +26,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3F0BE3292068F3D800C2DA04 /* FirebaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseManager.swift; sourceTree = "<group>"; };
 		3F40B456204835D2004A61BB /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		3F53A4F120668475005639E9 /* ViewPhotoTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewPhotoTableViewController.swift; sourceTree = "<group>"; };
+		3F53A4F320668A5E005639E9 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		3F58C55D2052CBE800F5F26B /* FeedTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedTableViewController.swift; sourceTree = "<group>"; };
 		3F58C55F2052E2D300F5F26B /* FeedTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedTableViewCell.swift; sourceTree = "<group>"; };
 		3F680B9F205147BD002A8D76 /* ChoosePhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChoosePhotoViewController.swift; sourceTree = "<group>"; };
@@ -89,14 +95,17 @@
 				3F680B9F205147BD002A8D76 /* ChoosePhotoViewController.swift */,
 				3F58C55F2052E2D300F5F26B /* FeedTableViewCell.swift */,
 				3F58C55D2052CBE800F5F26B /* FeedTableViewController.swift */,
+				3F0BE3292068F3D800C2DA04 /* FirebaseManager.swift */,
 				3F40B456204835D2004A61BB /* GoogleService-Info.plist */,
 				3FFFAB7D2047F2A40065D308 /* Info.plist */,
 				3FFFAB7A2047F2A40065D308 /* LaunchScreen.storyboard */,
 				3FFFAB852047F6E40065D308 /* LoginViewController.swift */,
 				3FFFAB752047F2A40065D308 /* Main.storyboard */,
 				3FFFAB8D20480E0A0065D308 /* MainScreenViewController.swift */,
+				3F53A4F320668A5E005639E9 /* Models.swift */,
 				3FFFAB87204802450065D308 /* RegisterViewController.swift */,
 				3FFFAB89204807080065D308 /* Util.swift */,
+				3F53A4F120668475005639E9 /* ViewPhotoTableViewController.swift */,
 			);
 			path = Cloneagram;
 			sourceTree = "<group>";
@@ -249,13 +258,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				3FFFAB8E20480E0A0065D308 /* MainScreenViewController.swift in Sources */,
+				3F53A4F220668475005639E9 /* ViewPhotoTableViewController.swift in Sources */,
 				3F58C5602052E2D400F5F26B /* FeedTableViewCell.swift in Sources */,
 				3FFFAB862047F6E40065D308 /* LoginViewController.swift in Sources */,
+				3F0BE32A2068F3D900C2DA04 /* FirebaseManager.swift in Sources */,
 				3F680BA0205147BD002A8D76 /* ChoosePhotoViewController.swift in Sources */,
 				3F58C55E2052CBE800F5F26B /* FeedTableViewController.swift in Sources */,
 				3FFFAB8A204807080065D308 /* Util.swift in Sources */,
 				3FFFAB722047F2A40065D308 /* AppDelegate.swift in Sources */,
 				3FFFAB88204802450065D308 /* RegisterViewController.swift in Sources */,
+				3F53A4F420668A5E005639E9 /* Models.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

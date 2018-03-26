@@ -8,9 +8,6 @@
 
 import UIKit
 
-import FirebaseAuth
-import Firebase
-
 class LoginViewController: UIViewController {
     
     @IBOutlet weak var emailTextField: UITextField!
@@ -24,11 +21,11 @@ class LoginViewController: UIViewController {
         // Set up back button title for register screen
         self.navigationItem.backBarButtonItem = UIBarButtonItem(
             title: "Back", style: .plain, target: nil, action: nil)
-        
     }
     
     /*override func viewWillDisappear(_ animated: Bool) {
-        // Fix iOS 11.2 bug of UIBarButtonItem staying highlighted after navigation
+        // Fix iOS 11.2 bug of UIBarButtonItem staying highlighted after navigation.
+        // The fix does not work though.
         navigationController?.navigationBar.tintAdjustmentMode = .normal
         navigationController?.navigationBar.tintAdjustmentMode = .automatic
     }*/
@@ -48,14 +45,12 @@ class LoginViewController: UIViewController {
             return
         }
         
-        Auth.auth().signIn(withEmail: email, password: password) { (user, error) in
-            if let error = error {
-                let errorMessage = AuthErrorCode(rawValue: error._code)?.errorMessage ?? String(format: "Unknown error (code: %d).", error._code)
-                
+        FirebaseManager.shared.login(email: email, password: password) { (errorMessage) in
+            if let errorMessage = errorMessage {
                 self.createAndShowErrorAlert(forMessage: errorMessage)
                 return
             }
-
+            
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             appDelegate.showMainScreen()
         }

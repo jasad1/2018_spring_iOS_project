@@ -8,8 +8,6 @@
 
 import UIKit
 
-import FirebaseAuth
-
 class MainScreenViewController: UIViewController {
     
     @IBOutlet weak var helloLabel: UILabel!
@@ -18,8 +16,9 @@ class MainScreenViewController: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        let user = Auth.auth().currentUser!
-        helloLabel.text = "Hello" + (user.displayName != nil ? ", " + user.displayName! : "") + "!"
+        FirebaseManager.shared.loadOwnUser { (user) in
+            self.helloLabel.text = "Hello, \(user?.displayName ?? "")!"
+        }
 
         // Set up back button title for register screen
         self.navigationItem.backBarButtonItem = UIBarButtonItem(
@@ -32,11 +31,7 @@ class MainScreenViewController: UIViewController {
     }
     
     @IBAction func logoutButtonClicked(_ sender: UIBarButtonItem) {
-        do {
-            try Auth.auth().signOut()
-        } catch let signOutError as NSError {
-            print("Error signing out: %@", signOutError)
-        }
+        FirebaseManager.shared.logout()
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.showLoginScreen()
