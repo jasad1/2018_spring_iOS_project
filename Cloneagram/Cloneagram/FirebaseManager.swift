@@ -13,8 +13,21 @@ import FirebaseAuth
 import FirebaseDatabase
 import FirebaseStorage
 
+struct Item {
+    var user: User
+    var profilePicture: UIImage?
+    var image: Image
+    var uiImage: UIImage
+}
+
+protocol FeedItemDelegate {
+    func feedItem(item: Item)
+}
+
+// This class is a singleton
 class FirebaseManager {
-    // This is a singleton
+    // MARK: - Class and instance fields
+    
     private static var firebaseAppConfigured = false
     private static var instance: FirebaseManager?
     
@@ -32,6 +45,10 @@ class FirebaseManager {
     private var firebaseUser: FirebaseAuth.User?
     private(set) var user: User?
     
+    var delegate: FeedItemDelegate? = nil
+    
+    // MARK: - Constructor
+    
     private init() {
         if !FirebaseManager.firebaseAppConfigured {
             FirebaseApp.configure()
@@ -44,6 +61,8 @@ class FirebaseManager {
         
         firebaseUser = auth.currentUser
     }
+    
+    // MARK: - Authentication and user management
     
     func loadOwnUser(callback: @escaping (User?) -> Void) {
         // Do not load the user again
@@ -59,8 +78,6 @@ class FirebaseManager {
         }
     }
     
-    // MARK: - Authentication and user management
-    
     var isLoggedIn: Bool {
         return firebaseUser != nil
     }
@@ -71,8 +88,8 @@ class FirebaseManager {
                 let errorMessage = AuthErrorCode(rawValue: error._code)?.errorMessage ?? String(format: "Unknown error (code: %d).", error._code)
                 callback(errorMessage)
             } else {
-                callback(nil)
                 self.firebaseUser = user!
+                callback(nil)
             }
         }
     }
@@ -95,60 +112,83 @@ class FirebaseManager {
                 return
             }
             
-            let request = user!.createProfileChangeRequest()
-            request.displayName = name
-            request.commitChanges { (error) in
-                if let error = error {
-                    let errorMessage = AuthErrorCode(rawValue: error._code)?.errorMessage ?? String(format: "Unknown error (code: %d).", error._code)
-                    
-                    callback(errorMessage)
+            self.databaseRef.child("users/\(user!.uid)/name")
+                .setValue(name) { (error, ref) in
+                if error != nil {
+                    callback("Could not save user data.")
                     return
                 }
                 
-                self.databaseRef.child("users/\(user!.uid)/displayName").setValue(name) { (error, ref) in
+                self.databaseRef.child("users/\(user!.uid)/followedUserIds")
+                    .childByAutoId().setValue(user!.uid) { (error, ref) in
                     if error != nil {
                         callback("Could not save user data.")
                         return
                     }
                     
-                    self.databaseRef.child("users/\(user!.uid)/followedUsers")
-                        .childByAutoId().setValue(user!.uid) { (error, ref) in
-                            if error != nil {
-                                callback("Could not save user data.")
-                                return
-                            }
-                            
-                            callback(nil)
-                    }
+                    callback(nil)
                 }
             }
         }
     }
     
+    private func loadImage(from imageSnapshot: DataSnapshot,
+                           withOwnerUid ownerUid: String) -> Image {
+        var image = Image()
+        image.uid = imageSnapshot.key
+        image.ownerUid = ownerUid
+        
+        for child in imageSnapshot.children {
+            let childSnapshot = child as! DataSnapshot
+            switch childSnapshot.key {
+            case "title":
+                image.title = (childSnapshot.value as! String)
+                
+            case "storageUuid":
+                image.storageUuid = childSnapshot.value as! String
+                
+            // TODO: implement these
+            //case "comments":
+                
+            //case "likes":
+                
+            default:
+                break
+            }
+        }
+        
+        return image
+    }
+    
     private func loadUser(uid: String, onLoad: @escaping (User?) -> Void) {
-        databaseRef.child("users/\(uid)").observeSingleEvent(of: .value) { (snapshot) in
+        databaseRef.child("users/\(uid)")
+                   .observeSingleEvent(of: .value) { (snapshot) in
             var user = User()
             user.uid = uid
+            user.isOwn = self.firebaseUser!.uid == uid
             
             for child in snapshot.children {
                 let childSnapshot = child as! DataSnapshot
                 switch childSnapshot.key {
-                case "displayName":
-                    user.displayName = childSnapshot.value as! String
+                case "name":
+                    user.name = childSnapshot.value as! String
                     
                 case "description":
                     user.description = (childSnapshot.value as! String)
                     
-                case "profilePictureUUID":
-                    user.profilePictureUUID = (childSnapshot.value as! String)
+                case "profilePictureStorageUuid":
+                    user.profilePictureStorageUuid = (childSnapshot.value as! String)
                     
                 case "images":
-                    let dict = childSnapshot.value as! [String: String]
-                    user.images.append(contentsOf: dict.values)
+                    for imageChild in childSnapshot.children {
+                        let imageChildSnapshot = imageChild as! DataSnapshot
+                        user.images.append(self.loadImage(from: imageChildSnapshot,
+                                                          withOwnerUid: uid))
+                    }
                     
-                case "followedUsers":
+                case "followedUserIds":
                     let dict = childSnapshot.value as! [String: String]
-                    user.followedUsers.append(contentsOf: dict.values)
+                    user.followedUserIds.append(contentsOf: dict.values)
                     
                 default:
                     break
@@ -178,10 +218,12 @@ class FirebaseManager {
                 return
             }
             
-            let imageDBRef = self.databaseRef.child("images").childByAutoId()
+            let imageDBRef = self.databaseRef
+                .child("users/\(self.firebaseUser!.uid)/images")
+                .childByAutoId()
             imageDBRef.updateChildValues([
                 "title": title ?? "",
-                "uuid": uuid
+                "storageUuid": uuid
             ]) { (error, ref) in
                 if error != nil {
                     // completion is nil, because we do not care about the result.
@@ -192,20 +234,80 @@ class FirebaseManager {
                     return
                 }
                 
-                self.databaseRef.child("users/\(self.firebaseUser!.uid)/images")
-                    .childByAutoId().setValue(imageDBRef.key) { (error, ref) in
-                        if error != nil {
-                            imageDBRef.removeValue()
-                            imageRef.delete(completion: nil)
-                            
-                            callback("Could not save user data.")
-                            return
-                        }
+                callback(nil)
+            }
+        }
+    }
+    
+    // MARK: - Feed loading
+    
+    private func loadImagesOfUser(_ user: User, _ profilePictureImage: UIImage?) {
+        for image in user.images {
+            let path = "images/" + image.storageUuid + ".jpg"
+            
+            let imageRef = self.storageRef.child(path)
+            imageRef.getData(maxSize: 1 * 1024 * 1024) { (data, error) in
+                if let _ = error {
+                    /*let errorMessage = StorageErrorCode(rawValue: error._code)?.errorMessage ?? String(format: "Unknown error (code: %d).", error._code)
+                     
+                     self.createAndShowErrorAlert(forMessage: errorMessage)*/
+                    return
+                }
+                
+                let downloadedImage = UIImage(data: data!)
+                guard downloadedImage != nil else {
+                    return
+                }
+                
+                let item = Item(user: user, profilePicture: profilePictureImage,
+                                image: image, uiImage: downloadedImage!)
+                self.delegate?.feedItem(item: item)
+            }
+        }
+    }
+    
+    func startObservingDatabase() {
+        for followedUserId in user!.followedUserIds {
+            loadUser(uid: followedUserId) { (user) in
+                guard let user = user else {
+                    return
+                }
+                
+                guard let photoUuid = user.profilePictureStorageUuid else {
+                    // No profile picture, just load the images
+                    self.loadImagesOfUser(user, nil)
+                    return
+                }
+                
+                let path = "images/" + photoUuid + ".jpg"
+                
+                let imageRef = self.storageRef.child(path)
+                imageRef.getData(maxSize: 1 * 1024 * 1024) { (data, error) in
+                    if error != nil {
+                        /*let errorMessage = StorageErrorCode(rawValue: error._code)?.errorMessage ?? String(format: "Unknown error (code: %d).", error._code)
+                         
+                         self.createAndShowErrorAlert(forMessage: errorMessage)*/
                         
-                        callback(nil)
+                        self.loadImagesOfUser(user, nil)
+                        return
+                    }
+                    
+                    let image = UIImage(data: data!)
+                    self.loadImagesOfUser(user, image)
                 }
             }
         }
+    }
+    
+    // MARK: - Image removal
+    
+    func removeImage(_ image: Image) {
+        let path = "images/" + image.storageUuid + ".jpg"
+        let imageRef = storageRef.child(path)
+        imageRef.delete(completion: nil)
+        
+        databaseRef.child("users/\(image.ownerUid)/images/\(image.uid)")
+                   .removeValue()
     }
 }
 

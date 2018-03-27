@@ -11,16 +11,24 @@ import Foundation
 struct User {
     var uid: String = ""
     var isOwn: Bool = false
-    var displayName: String = ""
+    var name: String = ""
     var description: String? = nil
-    var profilePictureUUID: String? = nil
-    var images: [String] = []
-    var followedUsers: [String] = []
+    var profilePictureStorageUuid: String? = nil
+    var images: [Image] = []
+    var followedUserIds: [String] = []
 }
 
 struct Image {
+    var uid: String = ""
+    var ownerUid: String = ""
     var title: String? = nil
-    var url: String = ""
-    var commentIds: [String] = []
-    var likeIds: [String] = []
+    var storageUuid: String = ""
+    var comments: [Comment] = []
+    var likeUserIds: [String] = []
+}
+
+struct Comment {
+    var uid: String = ""
+    var ownerUid: String = ""
+    var text: String = ""
 }

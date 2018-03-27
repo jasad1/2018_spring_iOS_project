@@ -10,14 +10,14 @@ import UIKit
 
 class ViewPhotoTableViewController: UITableViewController {
 
+    var item: Item!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem
+        // Register custom image cell
+        tableView.register(UINib(nibName: "ImageTableViewCell", bundle: Bundle.main),
+                           forCellReuseIdentifier: "imageCell")
     }
 
     override func didReceiveMemoryWarning() {
@@ -28,24 +28,35 @@ class ViewPhotoTableViewController: UITableViewController {
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
-        return 0
+        return 1
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        return 0
+        // image cell, likes cell, comments cells, new comment cell
+        return 1 + 1 + item.image.comments.count + 1
     }
-
-    /*
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "reuseIdentifier", for: indexPath)
+        
+        let cell: UITableViewCell = { switch indexPath.row {
+        case 0:
+            let cell = tableView.dequeueReusableCell(withIdentifier: "imageCell",
+                                                     for: indexPath) as! ImageTableViewCell
+            
+            // Configure the cell...
+            cell.nameLabel.text = item.user.name
+            cell.profilePictureImageView.image = item.profilePicture
+            cell.titleLabel.text = item.image.title
+            cell.photoImageView.image = item.uiImage
+            
+            return cell
+            
+        default:
+            return UITableViewCell()
+        } }()
 
-        // Configure the cell...
-
+        cell.selectionStyle = .none
         return cell
     }
-    */
 
     /*
     // Override to support conditional editing of the table view.
@@ -64,21 +75,6 @@ class ViewPhotoTableViewController: UITableViewController {
         } else if editingStyle == .insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
         }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
     }
     */
 

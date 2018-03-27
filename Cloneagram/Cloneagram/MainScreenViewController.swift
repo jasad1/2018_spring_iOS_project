@@ -17,7 +17,7 @@ class MainScreenViewController: UIViewController {
 
         // Do any additional setup after loading the view.
         FirebaseManager.shared.loadOwnUser { (user) in
-            self.helloLabel.text = "Hello, \(user?.displayName ?? "")!"
+            self.helloLabel.text = "Hello, \(user?.name ?? "")!"
         }
 
         // Set up back button title for register screen

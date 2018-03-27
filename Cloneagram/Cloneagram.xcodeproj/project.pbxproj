@@ -13,8 +13,9 @@
 		3F53A4F220668475005639E9 /* ViewPhotoTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F53A4F120668475005639E9 /* ViewPhotoTableViewController.swift */; };
 		3F53A4F420668A5E005639E9 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F53A4F320668A5E005639E9 /* Models.swift */; };
 		3F58C55E2052CBE800F5F26B /* FeedTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F58C55D2052CBE800F5F26B /* FeedTableViewController.swift */; };
-		3F58C5602052E2D400F5F26B /* FeedTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F58C55F2052E2D300F5F26B /* FeedTableViewCell.swift */; };
 		3F680BA0205147BD002A8D76 /* ChoosePhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F680B9F205147BD002A8D76 /* ChoosePhotoViewController.swift */; };
+		3FDDD3A8206A876700DCF2A1 /* ImageTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3FDDD3A7206A876600DCF2A1 /* ImageTableViewCell.xib */; };
+		3FDDD3AA206A88F700DCF2A1 /* ImageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FDDD3A9206A88F700DCF2A1 /* ImageTableViewCell.swift */; };
 		3FFFAB722047F2A40065D308 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FFFAB712047F2A40065D308 /* AppDelegate.swift */; };
 		3FFFAB772047F2A40065D308 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3FFFAB752047F2A40065D308 /* Main.storyboard */; };
 		3FFFAB792047F2A40065D308 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3FFFAB782047F2A40065D308 /* Assets.xcassets */; };
@@ -31,8 +32,9 @@
 		3F53A4F120668475005639E9 /* ViewPhotoTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewPhotoTableViewController.swift; sourceTree = "<group>"; };
 		3F53A4F320668A5E005639E9 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		3F58C55D2052CBE800F5F26B /* FeedTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedTableViewController.swift; sourceTree = "<group>"; };
-		3F58C55F2052E2D300F5F26B /* FeedTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedTableViewCell.swift; sourceTree = "<group>"; };
 		3F680B9F205147BD002A8D76 /* ChoosePhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChoosePhotoViewController.swift; sourceTree = "<group>"; };
+		3FDDD3A7206A876600DCF2A1 /* ImageTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ImageTableViewCell.xib; sourceTree = "<group>"; };
+		3FDDD3A9206A88F700DCF2A1 /* ImageTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageTableViewCell.swift; sourceTree = "<group>"; };
 		3FFFAB6E2047F2A40065D308 /* Cloneagram.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cloneagram.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FFFAB712047F2A40065D308 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3FFFAB762047F2A40065D308 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -93,10 +95,11 @@
 				3FFFAB712047F2A40065D308 /* AppDelegate.swift */,
 				3FFFAB782047F2A40065D308 /* Assets.xcassets */,
 				3F680B9F205147BD002A8D76 /* ChoosePhotoViewController.swift */,
-				3F58C55F2052E2D300F5F26B /* FeedTableViewCell.swift */,
 				3F58C55D2052CBE800F5F26B /* FeedTableViewController.swift */,
 				3F0BE3292068F3D800C2DA04 /* FirebaseManager.swift */,
 				3F40B456204835D2004A61BB /* GoogleService-Info.plist */,
+				3FDDD3A9206A88F700DCF2A1 /* ImageTableViewCell.swift */,
+				3FDDD3A7206A876600DCF2A1 /* ImageTableViewCell.xib */,
 				3FFFAB7D2047F2A40065D308 /* Info.plist */,
 				3FFFAB7A2047F2A40065D308 /* LaunchScreen.storyboard */,
 				3FFFAB852047F6E40065D308 /* LoginViewController.swift */,
@@ -181,6 +184,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3FFFAB7C2047F2A40065D308 /* LaunchScreen.storyboard in Resources */,
+				3FDDD3A8206A876700DCF2A1 /* ImageTableViewCell.xib in Resources */,
 				3F40B457204835D2004A61BB /* GoogleService-Info.plist in Resources */,
 				3FFFAB792047F2A40065D308 /* Assets.xcassets in Resources */,
 				3FFFAB772047F2A40065D308 /* Main.storyboard in Resources */,
@@ -259,13 +263,13 @@
 			files = (
 				3FFFAB8E20480E0A0065D308 /* MainScreenViewController.swift in Sources */,
 				3F53A4F220668475005639E9 /* ViewPhotoTableViewController.swift in Sources */,
-				3F58C5602052E2D400F5F26B /* FeedTableViewCell.swift in Sources */,
 				3FFFAB862047F6E40065D308 /* LoginViewController.swift in Sources */,
 				3F0BE32A2068F3D900C2DA04 /* FirebaseManager.swift in Sources */,
 				3F680BA0205147BD002A8D76 /* ChoosePhotoViewController.swift in Sources */,
 				3F58C55E2052CBE800F5F26B /* FeedTableViewController.swift in Sources */,
 				3FFFAB8A204807080065D308 /* Util.swift in Sources */,
 				3FFFAB722047F2A40065D308 /* AppDelegate.swift in Sources */,
+				3FDDD3AA206A88F700DCF2A1 /* ImageTableViewCell.swift in Sources */,
 				3FFFAB88204802450065D308 /* RegisterViewController.swift in Sources */,
 				3F53A4F420668A5E005639E9 /* Models.swift in Sources */,
 			);
