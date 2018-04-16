@@ -12,21 +12,22 @@ import Firebase
 import FirebaseAuth
 import FirebaseDatabase
 import FirebaseStorage
+import FirebaseStorageUI
 
-struct Item {
+/*struct Item {
     var user: User
     var profilePicture: UIImage?
     var image: Image
     var uiImage: UIImage
-}
+}*/
 
-protocol FeedItemDelegate {
-    func feedItem(item: Item)
+protocol ImageDelegate {
+    func image(image: Image)
 }
 
 // This class is a singleton
 class FirebaseManager {
-    // MARK: - Class and instance fields
+    // MARK: - Class fields
     
     private static var firebaseAppConfigured = false
     private static var instance: FirebaseManager?
@@ -38,6 +39,8 @@ class FirebaseManager {
         return instance!
     }
     
+    // MARK: - Instance fields
+    
     private var auth: Auth!
     private var databaseRef: DatabaseReference!
     private var storageRef: StorageReference!
@@ -45,7 +48,7 @@ class FirebaseManager {
     private var firebaseUser: FirebaseAuth.User?
     private(set) var user: User?
     
-    var delegate: FeedItemDelegate? = nil
+    var delegate: ImageDelegate? = nil
     
     // MARK: - Constructor
     
@@ -132,69 +135,109 @@ class FirebaseManager {
         }
     }
     
-    private func loadImage(from imageSnapshot: DataSnapshot,
-                           withOwnerUid ownerUid: String) -> Image {
-        var image = Image()
-        image.uid = imageSnapshot.key
-        image.ownerUid = ownerUid
+    private func loadImage(from imageSnapshot: DataSnapshot) -> Image? {
+        var title: String? = nil
+        var storageUuid: String? = nil
+        var likes: [Like] = []
         
         for child in imageSnapshot.children {
-            let childSnapshot = child as! DataSnapshot
+            guard let childSnapshot = child as? DataSnapshot else {
+                return nil
+            }
+            
             switch childSnapshot.key {
             case "title":
-                image.title = (childSnapshot.value as! String)
+                title = childSnapshot.value as? String
                 
             case "storageUuid":
-                image.storageUuid = childSnapshot.value as! String
+                storageUuid = childSnapshot.value as? String
                 
             // TODO: implement these
             //case "comments":
                 
-            //case "likes":
+            case "likes":
+                guard let dbLikes = childSnapshot.value as? [String: String] else {
+                    continue
+                }
+                
+                for (uid, userId) in dbLikes {
+                    likes.append(Like(uid: uid, userId: userId))
+                }
                 
             default:
                 break
             }
         }
         
+        guard let storageUuidU = storageUuid else {
+            return nil
+        }
+        
+        let image = Image(uid: imageSnapshot.key,
+                          storageUuid: storageUuidU)
+        image.title = title
         return image
     }
     
     private func loadUser(uid: String, onLoad: @escaping (User?) -> Void) {
         databaseRef.child("users/\(uid)")
                    .observeSingleEvent(of: .value) { (snapshot) in
-            var user = User()
-            user.uid = uid
-            user.isOwn = self.firebaseUser!.uid == uid
+            var name: String? = nil
+            var description: String? = nil
+            var profilePictureStorageUuid: String? = nil
+            var images: [Image] = []
+            var followedUserIds: [String] = []
             
             for child in snapshot.children {
-                let childSnapshot = child as! DataSnapshot
+                guard let childSnapshot = child as? DataSnapshot else {
+                    onLoad(nil)
+                    return
+                }
+                
                 switch childSnapshot.key {
                 case "name":
-                    user.name = childSnapshot.value as! String
+                    name = childSnapshot.value as? String
                     
                 case "description":
-                    user.description = (childSnapshot.value as! String)
+                    description = childSnapshot.value as? String
                     
                 case "profilePictureStorageUuid":
-                    user.profilePictureStorageUuid = (childSnapshot.value as! String)
+                    profilePictureStorageUuid = childSnapshot.value as? String
                     
                 case "images":
                     for imageChild in childSnapshot.children {
-                        let imageChildSnapshot = imageChild as! DataSnapshot
-                        user.images.append(self.loadImage(from: imageChildSnapshot,
-                                                          withOwnerUid: uid))
+                        guard let imageChildSnapshot = imageChild as? DataSnapshot,
+                              let image = self.loadImage(from: imageChildSnapshot) else {
+                            continue
+                        }
+                        images.append(image)
                     }
                     
                 case "followedUserIds":
                     let dict = childSnapshot.value as! [String: String]
-                    user.followedUserIds.append(contentsOf: dict.values)
+                    followedUserIds.append(contentsOf: dict.values)
                     
                 default:
                     break
                 }
             }
             
+            guard let nameU = name else {
+                onLoad(nil)
+                return
+            }
+
+            let user = User(uid: uid, name: nameU)
+            user.isOwn = self.firebaseUser!.uid == uid
+            user.description = description
+            user.profilePictureStorageUuid = profilePictureStorageUuid
+            user.images = images
+            user.followedUserIds = followedUserIds
+
+            for image in user.images {
+                image.owner = user
+            }
+                    
             onLoad(user)
         }
     }
@@ -241,62 +284,25 @@ class FirebaseManager {
     
     // MARK: - Feed loading
     
-    private func loadImagesOfUser(_ user: User, _ profilePictureImage: UIImage?) {
-        for image in user.images {
-            let path = "images/" + image.storageUuid + ".jpg"
-            
-            let imageRef = self.storageRef.child(path)
-            imageRef.getData(maxSize: 1 * 1024 * 1024) { (data, error) in
-                if let _ = error {
-                    /*let errorMessage = StorageErrorCode(rawValue: error._code)?.errorMessage ?? String(format: "Unknown error (code: %d).", error._code)
-                     
-                     self.createAndShowErrorAlert(forMessage: errorMessage)*/
+    func loadDatabase() {
+        for followedUserId in user!.followedUserIds {
+            loadUser(uid: followedUserId) { (followedUser) in
+                guard let followedUser = followedUser else {
                     return
                 }
                 
-                let downloadedImage = UIImage(data: data!)
-                guard downloadedImage != nil else {
-                    return
+                for image in followedUser.images {
+                    self.delegate?.image(image: image)
                 }
-                
-                let item = Item(user: user, profilePicture: profilePictureImage,
-                                image: image, uiImage: downloadedImage!)
-                self.delegate?.feedItem(item: item)
             }
         }
     }
     
-    func startObservingDatabase() {
-        for followedUserId in user!.followedUserIds {
-            loadUser(uid: followedUserId) { (user) in
-                guard let user = user else {
-                    return
-                }
-                
-                guard let photoUuid = user.profilePictureStorageUuid else {
-                    // No profile picture, just load the images
-                    self.loadImagesOfUser(user, nil)
-                    return
-                }
-                
-                let path = "images/" + photoUuid + ".jpg"
-                
-                let imageRef = self.storageRef.child(path)
-                imageRef.getData(maxSize: 1 * 1024 * 1024) { (data, error) in
-                    if error != nil {
-                        /*let errorMessage = StorageErrorCode(rawValue: error._code)?.errorMessage ?? String(format: "Unknown error (code: %d).", error._code)
-                         
-                         self.createAndShowErrorAlert(forMessage: errorMessage)*/
-                        
-                        self.loadImagesOfUser(user, nil)
-                        return
-                    }
-                    
-                    let image = UIImage(data: data!)
-                    self.loadImagesOfUser(user, image)
-                }
-            }
-        }
+    func loadImage(forUuid uuid: String, into imageView: UIImageView) {
+        let path = "images/" + uuid + ".jpg"
+
+        let imageRef = storageRef.child(path)
+        imageView.sd_setImage(with: imageRef)
     }
     
     // MARK: - Image removal
@@ -306,8 +312,27 @@ class FirebaseManager {
         let imageRef = storageRef.child(path)
         imageRef.delete(completion: nil)
         
-        databaseRef.child("users/\(image.ownerUid)/images/\(image.uid)")
+        databaseRef.child("users/\(image.owner.uid)/images/\(image.uid)")
                    .removeValue()
+        image.owner.images.remove(object: image)
+    }
+    
+    // MARK: - Like / Unlike
+    
+    func likeUnlike(_ image: Image) {
+        if image.likedByMe {
+            let like = image.myLike!
+            
+            databaseRef.child("users/\(image.owner.uid)/images/\(image.uid)/likes/\(like.uid)").removeValue()
+
+            image.likes.removeLike(byUserId: user!.uid)
+        } else {
+            let child = databaseRef.child("users/\(image.owner.uid)/images/\(image.uid)/likes")
+                                   .childByAutoId()
+            child.setValue(user!.uid)
+
+            image.likes.append(Like(uid: child.key, userId: user!.uid))
+        }
     }
 }
 

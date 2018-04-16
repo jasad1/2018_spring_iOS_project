@@ -8,6 +8,8 @@
 
 import UIKit
 
+import SDWebImage
+
 class ImageTableViewCell: UITableViewCell {
     
     @IBOutlet weak var containerView: UIView!
@@ -30,6 +32,22 @@ class ImageTableViewCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state
+    }
+    
+    func load(fromImage image: Image) {
+        nameLabel.text = image.owner.name
+        titleLabel.text = image.title
+
+        // Set blank images otherwise the UIImages do not get created
+        profilePictureImageView.image = #imageLiteral(resourceName: "BlankProfilePicture")
+        photoImageView.image = #imageLiteral(resourceName: "BlankPhoto")
+
+        if let pPSUuid = image.owner.profilePictureStorageUuid {
+            FirebaseManager.shared.loadImage(forUuid: pPSUuid,
+                                             into: profilePictureImageView)
+        }
+        FirebaseManager.shared.loadImage(forUuid: image.storageUuid,
+                                         into: photoImageView)
     }
 
 }

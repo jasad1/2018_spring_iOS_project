@@ -6,29 +6,77 @@
 //  Copyright © 2018. Student. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
-struct User {
-    var uid: String = ""
+class User {
+    var uid: String
     var isOwn: Bool = false
-    var name: String = ""
+    var name: String
     var description: String? = nil
     var profilePictureStorageUuid: String? = nil
     var images: [Image] = []
     var followedUserIds: [String] = []
+    
+    init(uid: String, name: String) {
+        self.uid = uid
+        self.name = name
+    }
 }
 
-struct Image {
-    var uid: String = ""
-    var ownerUid: String = ""
+class Image: Equatable {
+    var uid: String
+    var owner: User!
     var title: String? = nil
-    var storageUuid: String = ""
+    var storageUuid: String
     var comments: [Comment] = []
-    var likeUserIds: [String] = []
+    var likes: [Like] = []
+    
+    var likedByMe: Bool {
+        return likes.contains {
+            $0.userId == FirebaseManager.shared.user!.uid
+        }
+    }
+    
+    var myLike: Like? {
+        return likes.filter {
+            $0.userId == FirebaseManager.shared.user!.uid
+        }.first
+    }
+    
+    init(uid: String, storageUuid: String) {
+        self.uid = uid
+        self.storageUuid = storageUuid
+    }
+    
+    static func ==(lhs: Image, rhs: Image) -> Bool {
+        return lhs.uid == rhs.uid
+    }
 }
 
-struct Comment {
-    var uid: String = ""
-    var ownerUid: String = ""
-    var text: String = ""
+class Comment {
+    var uid: String
+    var owner: User!
+    var parentImage: Image!
+    var text: String
+    
+    init(uid: String, text: String) {
+        self.uid = uid
+        self.text = text
+    }
+}
+
+struct Like {
+    var uid: String
+    var userId: String
+}
+
+extension Array where Element == Like {
+    mutating func removeLike(byUserId userId: String) {
+        for (i, e) in enumerated() {
+            if e.userId == userId {
+                remove(at: i)
+                return
+            }
+        }
+    }
 }

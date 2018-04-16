@@ -8,10 +8,10 @@
 
 import UIKit
 
-class FeedTableViewController: UITableViewController, FeedItemDelegate {
+class FeedTableViewController: UITableViewController, ImageDelegate {
 
     private var firebaseManager = FirebaseManager.shared
-    private var items: [Item] = []
+    private var images: [Image] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,7 +32,7 @@ class FeedTableViewController: UITableViewController, FeedItemDelegate {
                 return
             }
             self.firebaseManager.delegate = self
-            self.firebaseManager.startObservingDatabase()
+            self.firebaseManager.loadDatabase()
         }
     }
 
@@ -48,10 +48,10 @@ class FeedTableViewController: UITableViewController, FeedItemDelegate {
         //databaseRef.removeAllObservers()
     }
     
-    // MARK: - Feed item delegate
+    // MARK: - Image delegate
     
-    func feedItem(item: Item) {
-        items.append(item)
+    func image(image: Image) {
+        images.append(image)
         tableView.reloadData()
     }
     
@@ -59,18 +59,18 @@ class FeedTableViewController: UITableViewController, FeedItemDelegate {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: "FeedToViewPhoto",
-                     sender: items[indexPath.row])
+                     sender: images[indexPath.row])
     }
     
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        let item = items[indexPath.row]
-        return item.user.isOwn
+        let image = images[indexPath.row]
+        return image.owner.isOwn
     }
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            firebaseManager.removeImage(items[indexPath.row].image)
-            items.remove(at: indexPath.row)
+            firebaseManager.removeImage(images[indexPath.row])
+            images.remove(at: indexPath.row)
             tableView.reloadData()
         }
     }
@@ -82,7 +82,7 @@ class FeedTableViewController: UITableViewController, FeedItemDelegate {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return items.count
+        return images.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -91,11 +91,8 @@ class FeedTableViewController: UITableViewController, FeedItemDelegate {
         cell.selectionStyle = .none
         
         // Configure the cell...
-        let item = items[indexPath.row]
-        cell.nameLabel.text = item.user.name
-        cell.profilePictureImageView.image = item.profilePicture
-        cell.titleLabel.text = item.image.title
-        cell.photoImageView.image = item.uiImage
+        let image = images[indexPath.row]
+        cell.load(fromImage: image)
         
         return cell
     }
@@ -108,6 +105,6 @@ class FeedTableViewController: UITableViewController, FeedItemDelegate {
         // Pass the selected object to the new view controller.
         
         let target = segue.destination as! ViewPhotoTableViewController
-        target.item = sender as! Item
+        target.image = sender as! Image
     }
 }

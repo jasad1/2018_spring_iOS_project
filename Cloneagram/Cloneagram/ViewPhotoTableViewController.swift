@@ -10,14 +10,25 @@ import UIKit
 
 class ViewPhotoTableViewController: UITableViewController {
 
-    var item: Item!
+    var image: Image!
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Register custom image cell
+        // Register custom image cell from xib
         tableView.register(UINib(nibName: "ImageTableViewCell", bundle: Bundle.main),
                            forCellReuseIdentifier: "imageCell")
+        
+        // Set up right button title for view photo screen
+        if image.owner.isOwn {
+            self.navigationItem.rightBarButtonItem = UIBarButtonItem(
+                title: "Delete photo", style: .plain, target: self,
+                action: #selector(rightBarButtonClicked(sender:)))
+        }
+    }
+    
+    @objc func rightBarButtonClicked(sender: UIBarButtonItem) {
+        // TODO: implement
     }
 
     override func didReceiveMemoryWarning() {
@@ -33,8 +44,9 @@ class ViewPhotoTableViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // image cell, likes cell, comments cells, new comment cell
-        return 1 + 1 + item.image.comments.count + 1
+        return 1 + 1 + image.comments.count + 1
     }
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell: UITableViewCell = { switch indexPath.row {
@@ -43,10 +55,25 @@ class ViewPhotoTableViewController: UITableViewController {
                                                      for: indexPath) as! ImageTableViewCell
             
             // Configure the cell...
-            cell.nameLabel.text = item.user.name
-            cell.profilePictureImageView.image = item.profilePicture
-            cell.titleLabel.text = item.image.title
-            cell.photoImageView.image = item.uiImage
+            cell.load(fromImage: image)
+            
+            return cell
+            
+        case 1:
+            let cell = tableView.dequeueReusableCell(withIdentifier: "likesCell",
+                                                     for: indexPath) as! LikesTableViewCell
+            
+            // Configure the cell...
+            cell.load(fromImage: image)
+            
+            return cell
+            
+        case 2 ..< 2 + image.comments.count:
+            let cell = tableView.dequeueReusableCell(withIdentifier: "commentCell",
+                                                     for: indexPath) as! CommentTableViewCell
+            
+            // Configure the cell...
+            cell.load(fromComment: image.comments[indexPath.row - 2])
             
             return cell
             
