@@ -14,8 +14,8 @@ class User {
     var name: String
     var description: String? = nil
     var profilePictureStorageUuid: String? = nil
-    var images: [Image] = []
-    var followedUserIds: [String] = []
+    var photos: [String: AnyObject] = [:]
+    var followedUserUids: [String] = []
     
     init(uid: String, name: String) {
         self.uid = uid
@@ -23,60 +23,62 @@ class User {
     }
 }
 
-class Image: Equatable {
+protocol PhotoDeletedDelegate {
+    func photoDeleted(photo: Photo)
+}
+
+class Photo: Equatable {
     var uid: String
     var owner: User!
+    var timestamp: UInt64
     var title: String? = nil
     var storageUuid: String
     var comments: [Comment] = []
-    var likes: [Like] = []
+    var likedByUserUids: [String] = []
     
-    var likedByMe: Bool {
-        return likes.contains {
-            $0.userId == FirebaseManager.shared.user!.uid
+    var photoDeletedDelegates: [PhotoDeletedDelegate] = []
+    
+    func callPhotoDeletedDelegates() {
+        for delegate in photoDeletedDelegates {
+            delegate.photoDeleted(photo: self)
         }
     }
     
-    var myLike: Like? {
-        return likes.filter {
-            $0.userId == FirebaseManager.shared.user!.uid
-        }.first
+    var isLikedByOwnUser: Bool {
+        return likedByUserUids.contains(FirebaseManager.shared.ownUser!.uid)
     }
     
-    init(uid: String, storageUuid: String) {
+    init(uid: String, timestamp: UInt64, storageUuid: String) {
         self.uid = uid
+        self.timestamp = timestamp
         self.storageUuid = storageUuid
     }
     
-    static func ==(lhs: Image, rhs: Image) -> Bool {
+    static func ==(lhs: Photo, rhs: Photo) -> Bool {
         return lhs.uid == rhs.uid
     }
 }
 
-class Comment {
+class Comment: Equatable {
     var uid: String
+    var ownerUid: String
     var owner: User!
-    var parentImage: Image!
+    var timestamp: UInt64
+    var parentPhoto: Photo!
     var text: String
     
-    init(uid: String, text: String) {
+    var isOwnComment: Bool {
+        return ownerUid == FirebaseManager.shared.ownUser.uid
+    }
+    
+    init(uid: String, ownerUid: String, timestamp: UInt64, text: String) {
         self.uid = uid
+        self.ownerUid = ownerUid
+        self.timestamp = timestamp
         self.text = text
     }
-}
-
-struct Like {
-    var uid: String
-    var userId: String
-}
-
-extension Array where Element == Like {
-    mutating func removeLike(byUserId userId: String) {
-        for (i, e) in enumerated() {
-            if e.userId == userId {
-                remove(at: i)
-                return
-            }
-        }
+    
+    static func ==(lhs: Comment, rhs: Comment) -> Bool {
+        return lhs.uid == rhs.uid
     }
 }

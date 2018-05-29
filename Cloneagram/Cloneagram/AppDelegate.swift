@@ -12,32 +12,32 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    var mainStoryBoard: UIStoryboard!
+    private var mainStoryBoard: UIStoryboard!
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
         mainStoryBoard = UIStoryboard(name: "Main", bundle: Bundle.main)
         
-        if FirebaseManager.shared.isLoggedIn {
+        if FirebaseManager.shared.isSignedIn {
             showMainScreen()
         } else {
-            showLoginScreen()
+            showSignInScreen()
         }
         
         return true
     }
     
     func showMainScreen() {
-        let rootController = mainStoryBoard.instantiateViewController(withIdentifier: "MainScreenViewController")
-        changeRootAnimated(UINavigationController(rootViewController: rootController))
+        let rootController = mainStoryBoard.instantiateViewController(withIdentifier: "MainScreenTabBarController")
+        changeRootAnimated(rootController)
     }
     
-    func showLoginScreen() {
+    func showSignInScreen() {
         changeRootAnimated(mainStoryBoard.instantiateInitialViewController()!)
     }
     
-    func changeRootAnimated(_ rootViewController: UIViewController) {
+    private func changeRootAnimated(_ rootViewController: UIViewController) {
         let snapShot = (window?.snapshotView(afterScreenUpdates: true))!
         rootViewController.view.addSubview(snapShot)
         window?.rootViewController = rootViewController
@@ -71,7 +71,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
-
-
 }
-
