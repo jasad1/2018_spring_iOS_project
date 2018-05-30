@@ -19,16 +19,9 @@ class SignInViewController: UIViewController {
         // Do any additional setup after loading the view.
         
         // Set up back button title for create user screen
-        self.navigationItem.backBarButtonItem = UIBarButtonItem(
+        navigationItem.backBarButtonItem = UIBarButtonItem(
             title: "Back", style: .plain, target: nil, action: nil)
     }
-    
-    /*override func viewWillDisappear(_ animated: Bool) {
-        // Fix iOS 11.2 bug of UIBarButtonItem staying highlighted after navigation.
-        // The fix does not work though.
-        navigationController?.navigationBar.tintAdjustmentMode = .normal
-        navigationController?.navigationBar.tintAdjustmentMode = .automatic
-    }*/
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()

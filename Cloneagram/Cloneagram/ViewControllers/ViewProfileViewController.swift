@@ -13,6 +13,7 @@ class ViewProfileViewController: UIViewController {
     @IBOutlet weak var profilePictureImageView: UIImageView!
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var descriptionLabel: UILabel!
+    @IBOutlet weak var rightBarButtonItem: UIBarButtonItem!
     
     var user: User!
     
@@ -41,21 +42,21 @@ class ViewProfileViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    // TODO: does not work
     private func setRightBarButton() {
         let isFollowed = FirebaseManager.shared.ownUser
             .followedUserUids.contains(user.uid)
         let title = isFollowed ? "Unfollow" : "Follow"
         
         if !user.isOwn {
-            navigationController?.navigationItem
-                .rightBarButtonItem = UIBarButtonItem(
-                title: title, style: .plain, target: nil,
-                action: #selector(rightBarButtonClicked(sender:)))
+            rightBarButtonItem.title = title
         }
     }
     
-    @objc private func rightBarButtonClicked(sender: UIBarButtonItem) {
+    @IBAction func rightBarButtonClicked(_ sender: UIBarButtonItem) {
+        if user.isOwn {
+            return
+        }
+
         FirebaseManager.shared.followUnfollow(userToFollow: user) { (error) in
             if let error = error {
                 self.createAndShowErrorAlert(for: "Failed to execute action! " + error)

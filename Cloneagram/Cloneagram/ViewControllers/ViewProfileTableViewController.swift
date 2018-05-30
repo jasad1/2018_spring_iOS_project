@@ -21,8 +21,6 @@ class ViewProfileTableViewController: UITableViewController, PhotoDeletedDelegat
         tableView.register(UINib(nibName: Constants.NibNames.PhotoTableViewCell, bundle: Bundle.main),
                            forCellReuseIdentifier: Constants.ReuseIdentifiers.photoCell)
         
-        // TODO: Maybe photo loading does not work properly here
-        // (due to of callback loading specific photos as well?)
         FirebaseManager.shared.loadPhotos(for: user) { (error) in
             if let error = error {
                 self.createAndShowErrorAlert(for: "Failed to load photos for user! " + error)

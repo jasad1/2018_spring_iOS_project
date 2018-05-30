@@ -16,15 +16,6 @@ class FeedTableViewController: UITableViewController, FeedDelegate, PhotoDeleted
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Set bounce color, does not work though
-        /*let view = UIView(frame: CGRect(x: 0, y: -480, width: 320, height: 480))
-        view.backgroundColor = tableView.backgroundColor
-        tableView.addSubview(view)*/
-        
-        // Set up back button title
-        /*self.navigationItem.backBarButtonItem = UIBarButtonItem(
-            title: "Back", style: .plain, target: nil, action: nil)*/
-        
         // Register custom photo cell from xib
         tableView.register(UINib(nibName: Constants.NibNames.PhotoTableViewCell, bundle: Bundle.main),
                            forCellReuseIdentifier: Constants.ReuseIdentifiers.photoCell)
@@ -38,6 +29,12 @@ class FeedTableViewController: UITableViewController, FeedDelegate, PhotoDeleted
             self.firebaseManager.delegate = self
             self.firebaseManager.loadPhotosOfFollowedUsers()
         }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        // Fix iOS 11.2 bug of UIBarButtonItem staying highlighted after navigation.
+        navigationController?.navigationBar.tintAdjustmentMode = .normal
+        navigationController?.navigationBar.tintAdjustmentMode = .automatic
     }
 
     override func didReceiveMemoryWarning() {

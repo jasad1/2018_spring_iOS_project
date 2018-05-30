@@ -20,6 +20,18 @@ protocol FeedDelegate {
     func reloadProfilePictures()
 }
 
+/* Real-time updates could have been used in many places, e.g.
+ * feed, comments, likes, profile description, profile picture changes etc.
+ * The structure of the app was organized in a static way from the beginning
+ * and due to time constraints, real-time functionality is not implemented.
+ * From the user's point of view, the app works more in a content-consuming
+ * way, rather than having full real-time interactivity. Users can open the
+ * app, go through all the uploaded stuff at the current point in time, post
+ * some likes or comments, then close the app. Next time they open it again,
+ * all the new interactions that happened by other users in the meantime will
+ * be available for consumption.
+ */
+
 // This class is a singleton
 class FirebaseManager {
     

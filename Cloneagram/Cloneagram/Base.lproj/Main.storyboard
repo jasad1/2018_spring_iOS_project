@@ -243,7 +243,7 @@
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="300" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="5M8-3v-oCs">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="0.84346832790000004" green="0.84346832790000004" blue="0.84346832790000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <sections/>
                         <connections>
                             <outlet property="dataSource" destination="cPj-S3-Fqd" id="bOh-Q6-Rzc"/>
@@ -271,11 +271,11 @@
             <objects>
                 <viewController id="tvq-SH-uSO" customClass="ViewProfileViewController" customModule="Cloneagram" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="l8q-jy-3X2">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="409"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Sta-WY-tmY">
-                                <rect key="frame" x="8" y="128" width="304" height="26"/>
+                                <rect key="frame" x="8" y="64" width="304" height="26"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="26" id="MPA-df-9A4"/>
                                 </constraints>
@@ -284,13 +284,13 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PSp-do-ra2">
-                                <rect key="frame" x="0.0" y="162" width="320" height="357"/>
+                                <rect key="frame" x="0.0" y="98" width="320" height="311"/>
                                 <connections>
                                     <segue destination="0gD-pi-Cs6" kind="embed" identifier="ViewProfileEmbed" id="PQq-bS-TCH"/>
                                 </connections>
                             </containerView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="O4d-8o-npg">
-                                <rect key="frame" x="64" y="83" width="248" height="26"/>
+                                <rect key="frame" x="64" y="19" width="248" height="26"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="26" id="XAO-Uq-Wua"/>
                                 </constraints>
@@ -299,7 +299,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="F8V-np-IrQ">
-                                <rect key="frame" x="8" y="72" width="48" height="48"/>
+                                <rect key="frame" x="8" y="8" width="48" height="48"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="48" id="Se6-ke-plT"/>
                                     <constraint firstAttribute="height" constant="48" id="YgH-H8-zKO"/>
@@ -323,10 +323,18 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="xaS-Ft-fAK"/>
                     </view>
+                    <navigationItem key="navigationItem" id="Ond-eB-nya">
+                        <barButtonItem key="rightBarButtonItem" id="UPN-b4-vzS">
+                            <connections>
+                                <action selector="rightBarButtonClicked:" destination="tvq-SH-uSO" id="AOY-Jb-WmW"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="descriptionLabel" destination="Sta-WY-tmY" id="Mcw-Xw-z1f"/>
                         <outlet property="nameLabel" destination="O4d-8o-npg" id="DKG-Ab-ru1"/>
                         <outlet property="profilePictureImageView" destination="F8V-np-IrQ" id="kyb-Eh-q5q"/>
+                        <outlet property="rightBarButtonItem" destination="UPN-b4-vzS" id="t5X-2c-vld"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Tyn-ZQ-xlp" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -338,9 +346,9 @@
             <objects>
                 <tableViewController id="0gD-pi-Cs6" customClass="ViewProfileTableViewController" customModule="Cloneagram" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="300" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="5C2-IY-XSx">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="357"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="311"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="0.84346832790000004" green="0.84346832790000004" blue="0.84346832790000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <connections>
                             <outlet property="dataSource" destination="0gD-pi-Cs6" id="3yk-45-jct"/>
                             <outlet property="delegate" destination="0gD-pi-Cs6" id="hMi-bR-NrC"/>
@@ -359,9 +367,9 @@
             <objects>
                 <tableViewController id="lOp-FG-Zvl" customClass="ViewPhotoTableViewController" customModule="Cloneagram" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="zT3-do-qpR">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="357"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="311"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="0.84346832790000004" green="0.84346832790000004" blue="0.84346832790000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <color key="sectionIndexBackgroundColor" red="0.84346832790000004" green="0.84346832790000004" blue="0.84346832790000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="likesCell" id="Ypj-RQ-BRm" customClass="LikesTableViewCell" customModule="Cloneagram" customModuleProvider="target">
@@ -842,7 +850,7 @@
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="74" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="LXa-jq-tiX">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="409"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="0.84346832790000004" green="0.84346832790000004" blue="0.84346832790000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="searchResultCell" rowHeight="74" id="0ex-TT-kcH" customClass="SearchResultTableViewCell" customModule="Cloneagram" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="28" width="320" height="74"/>
@@ -912,7 +920,7 @@
     </scenes>
     <inferredMetricsTieBreakers>
         <segue reference="bYq-vR-7I8"/>
-        <segue reference="xnN-tx-4N3"/>
+        <segue reference="T9X-Si-M28"/>
         <segue reference="TDp-VS-i25"/>
     </inferredMetricsTieBreakers>
 </document>
